@@ -3,31 +3,171 @@
 <head>
   <meta charset="UTF-8">
   <title>Calculadora IC - Universidade Gratuita</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
-    body { font-family: Arial, sans-serif; margin: 20px; max-width: 600px; }
-    label { display: block; margin-top: 10px; }
-    input { width: 100%; padding: 6px; margin-top: 5px; }
-    button { margin-top: 20px; padding: 10px 20px; }
-    #resultado { margin-top: 20px; font-weight: bold; }
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #f4f7f8;
+      color: #333;
+      margin: 0;
+      padding: 0;
+    }
+
+    .container {
+      max-width: 600px;
+      margin: 40px auto;
+      padding: 30px;
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+
+    h2 {
+      text-align: center;
+      color: #2c3e50;
+    }
+
+    label {
+      display: block;
+      margin-top: 15px;
+      font-weight: 600;
+    }
+
+    input[type="number"], input[type="text"] {
+      width: 100%;
+      padding: 10px;
+      margin-top: 6px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      transition: border-color 0.3s;
+    }
+
+    input:focus {
+      border-color: #3498db;
+      outline: none;
+    }
+
+    .radio-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 20px;
+      margin-top: 6px;
+    }
+
+    .radio-option {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    button {
+      margin-top: 25px;
+      padding: 12px 20px;
+      width: 100%;
+      background-color: #3498db;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      font-size: 16px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+
+    button:hover {
+      background-color: #2980b9;
+    }
+
+    #resultado {
+      margin-top: 25px;
+      padding: 12px;
+      background-color: #ecf0f1;
+      border-left: 5px solid #3498db;
+      border-radius: 4px;
+      font-weight: bold;
+    }
+
+    @media (max-width: 600px) {
+      .container {
+        margin: 20px;
+        padding: 20px;
+      }
+
+      .radio-group {
+        flex-direction: column;
+        gap: 10px;
+      }
+
+      h2 {
+        font-size: 20px;
+      }
+
+      button {
+        font-size: 15px;
+      }
+    }
   </style>
 </head>
 <body>
-  <h2>Calculadora do Índice de Carência (IC)</h2>
-  
-  <label>Renda Bruta Familiar Mensal (R$): <input type="number" id="rendaBruta"></label>
-  <label>Nº de Membros do Grupo Familiar: <input type="number" id="membros"></label>
+  <div class="container">
+    <h2>Calculadora do Índice de Carência (IC)</h2>
 
-  <label>Situação de Desemprego (1=Sim, 0=Não): <input type="number" id="sd" min="0" max="1"></label>
-  <label>Despesas com Habitação (1=Sim, 0=Não): <input type="number" id="dh" min="0" max="1"></label>
-  <label>Despesa com Educação de outro membro (R$): <input type="number" id="de"></label>
-  <label>Despesas com Doença Crônica (1=Sim, 0=Não): <input type="number" id="ddc" min="0" max="1"></label>
-  <label>Valor total dos Bens do Grupo Familiar (R$): <input type="number" id="bgf"></label>
-  <label>Despesa com Transporte Coletivo (R$): <input type="number" id="tc"></label>
+    <label>Renda Bruta Familiar Mensal (R$): <input type="number" id="rendaBruta" step="0.01"></label>
+    <label>Nº de Membros do Grupo Familiar: <input type="number" id="membros"></label>
 
-  <button onclick="calcularIC()">Calcular IC</button>
-  <div id="resultado"></div>
+    <label>Situação de Desemprego:</label>
+    <div class="radio-group">
+      <div class="radio-option">
+        <input type="radio" id="sdSim" name="sd" value="1">
+        <label for="sdSim">Sim</label>
+      </div>
+      <div class="radio-option">
+        <input type="radio" id="sdNao" name="sd" value="0" checked>
+        <label for="sdNao">Não</label>
+      </div>
+    </div>
+
+    <label>Despesas com Habitação:</label>
+    <div class="radio-group">
+      <div class="radio-option">
+        <input type="radio" id="dhSim" name="dh" value="1">
+        <label for="dhSim">Sim</label>
+      </div>
+      <div class="radio-option">
+        <input type="radio" id="dhNao" name="dh" value="0" checked>
+        <label for="dhNao">Não</label>
+      </div>
+    </div>
+
+    <label>Despesa com Educação de outro membro (R$): <input type="number" id="de" step="0.01"></label>
+
+    <label>Doença Crônica:</label>
+    <div class="radio-group">
+      <div class="radio-option">
+        <input type="radio" id="ddcSim" name="ddc" value="1">
+        <label for="ddcSim">Sim</label>
+      </div>
+      <div class="radio-option">
+        <input type="radio" id="ddcNao" name="ddc" value="0" checked>
+        <label for="ddcNao">Não</label>
+      </div>
+    </div>
+
+    <label>Valor total dos Bens do Grupo Familiar (R$): <input type="number" id="bgf" step="0.01"></label>
+    <label>Despesa com Transporte Coletivo (R$): <input type="number" id="tc" step="0.01"></label>
+
+    <button onclick="calcularIC()">Calcular IC</button>
+    <div id="resultado"></div>
+  </div>
 
   <script>
+    function formatarMoeda(valor) {
+      return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(valor);
+    }
+
     function calcularDE(de) {
       if (de === 0) return 1.00;
       if (de <= 500) return 1.05;
@@ -53,7 +193,7 @@
     }
 
     function calcularRP(rpc) {
-      const sm = 1412; // salário mínimo
+      const sm = 1412;
       if (rpc <= sm / 4) return 10;
       if (rpc <= sm / 2) return 8;
       if (rpc <= sm) return 6;
@@ -66,24 +206,24 @@
     function calcularIC() {
       const rendaBruta = parseFloat(document.getElementById("rendaBruta").value);
       const membros = parseFloat(document.getElementById("membros").value);
-      const sd = parseFloat(document.getElementById("sd").value);
-      const dh = parseFloat(document.getElementById("dh").value);
+      const sd = parseFloat(document.querySelector('input[name="sd"]:checked').value);
+      const dh = parseFloat(document.querySelector('input[name="dh"]:checked').value);
       const deValor = parseFloat(document.getElementById("de").value);
-      const ddc = parseFloat(document.getElementById("ddc").value);
+      const ddc = parseFloat(document.querySelector('input[name="ddc"]:checked').value);
       const bgfValor = parseFloat(document.getElementById("bgf").value);
       const tcGasto = parseFloat(document.getElementById("tc").value);
 
-      if (membros === 0 || isNaN(rendaBruta)) {
-        document.getElementById("resultado").innerText = "Preencha os campos obrigatórios.";
+      if (!rendaBruta || !membros || membros === 0) {
+        document.getElementById("resultado").innerText = "Preencha os campos obrigatórios corretamente.";
         return;
       }
 
       const rpc = rendaBruta / membros;
-      const de = calcularDE(deValor);
-      const bgf = calcularBGF(bgfValor);
+      const de = calcularDE(deValor || 0);
+      const bgf = calcularBGF(bgfValor || 0);
 
       const tcLimite = 0.2 * rendaBruta;
-      const tcValido = Math.min(tcGasto, tcLimite);
+      const tcValido = Math.min(tcGasto || 0, tcLimite);
       const tc = 1 + (tcValido / rendaBruta);
 
       const rp = calcularRP(rpc);
@@ -91,7 +231,10 @@
       const fp = sd + dh + de + ddc + bgf + tc + rp;
       const ic = (fp / rpc) * 100;
 
-      document.getElementById("resultado").innerText = `Índice de Carência (IC): ${ic.toFixed(2)}`;
+      document.getElementById("resultado").innerHTML = `
+        <p>Índice de Carência (IC): <strong>${ic.toFixed(2)}</strong></p>
+        <p>Renda per capita: ${formatarMoeda(rpc)}</p>
+      `;
     }
   </script>
 </body>
