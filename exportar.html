@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <title>Exportar Histórico - IC</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+      background: #f9f9f9;
+      color: #333;
+    }
+
+    h2 {
+      text-align: center;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+      background: #fff;
+    }
+
+    th, td {
+      padding: 10px;
+      border: 1px solid #ccc;
+      text-align: center;
+    }
+
+    th {
+      background-color: #3498db;
+      color: white;
+    }
+
+    .buttons {
+      display: flex;
+      justify-content: center;
+      gap: 15px;
+      margin-top: 20px;
+    }
+
+    button {
+      padding: 10px 20px;
+      border: none;
+      background-color: #2980b9;
+      color: white;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+
+    button:hover {
+      background-color: #21618c;
+    }
+
+    .empty {
+      text-align: center;
+      margin-top: 30px;
+      color: #888;
+    }
+  </style>
+</head>
+<body>
+
+  <h2>Exportar Histórico de Índice de Carência (IC)</h2>
+  <div id="tabelaContainer"></div>
+
+  <div class="buttons">
+    <button onclick="exportarExcel()">Exportar para Excel</button>
+    <button onclick="exportarPDF()">Exportar para PDF</button>
+    <button onclick="limparHistorico()">Limpar Histórico</button>
+  </div>
+
+  <script>
+    function carregarHistorico() {
+      const historico = JSON.parse(localStorage.getItem("historicoIC")) || [];
+      const container = document.getElementById("tabelaContainer");
+
+      if (historico.length === 0) {
+        container.innerHTML = '<p class="empty">Nenhum histórico encontrado.</p>';
+        return;
+      }
+
+      let tabela = `<table><thead>
+        <tr><th>Data</th><th>Renda per Capita (RPC)</th><th>Índice de Carência (IC)</th></tr>
+      </thead><tbody>`;
+
+      historico.forEach(item => {
+        tabela += `<tr>
+          <td>${item.data}</td>
+          <td>R$ ${item.rpc.toFixed(2).replace('.', ',')}</td>
+          <td>${item.ic.toFixed(2)}</td>
+        </tr>`;
+      });
+
+      tabela += '</tbody></table>';
+      container.innerHTML = tabela;
+    }
+
+    function exportarExcel() {
+      const historico = JSON.parse(localStorage.getItem("historicoIC")) || [];
+      if (historico.length === 0) return alert("Nenhum dado para exportar.");
+
+      const worksheet = XLSX.utils.json_to_sheet(historico);
+      const workbook = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(workbook, worksheet, "Histórico IC");
+      XLSX.writeFile(workbook, "historico_ic.xlsx");
+    }
+
+    async function exportarPDF() {
+      const historico = JSON.parse(localStorage.getItem("historicoIC")) || [];
+      if (historico.length === 0) return alert("Nenhum dado para exportar.");
+
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF();
+
+      doc.setFontSize(16);
+      doc.text("Histórico de Índice de Carência (IC)", 14, 20);
+
+      const colunas = ["Data", "RPC", "IC"];
+      const linhas = historico.map(h => [h.data, `R$ ${h.rpc.toFixed(2)}`, h.ic.toFixed(2)]);
+
+      doc.autoTable({
+        head: [colunas],
+        body: linhas,
+        startY: 30
+      });
+
+      doc.save("historico_ic.pdf");
+    }
+
+    function limparHistorico() {
+      if (confirm("Deseja realmente apagar todo o histórico?")) {
+        localStorage.removeItem("historicoIC");
+        carregarHistorico();
+      }
+    }
+
+    // AutoTable (plugin do jsPDF) – carregamento dinâmico
+    window.onload = async () => {
+      if (!window.jspdf || !window.jspdf.autoTable) {
+        const script = document.createElement('script');
+        script.src = 'https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js';
+        document.head.appendChild(script);
+        script.onload = carregarHistorico;
+      } else {
+        carregarHistorico();
+      }
+    };
+  </script>
+</body>
+</html>
